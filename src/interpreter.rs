@@ -110,8 +110,20 @@ pub fn interpret(node_and_pos: &(Node, Position), file_path: &str) -> Result<Val
         Node::Float(float) => Ok(Value::Float(*float)),
         Node::Infinity => Ok(Value::Float(INFINITY)),
         Node::PI => Ok(Value::Float(PI)),
+        Node::Vector(nodes) => {
+            let mut vector: Vec<Value> = vec![];
+            for n in nodes {
+                let value = interpret(&n, file_path)?;
+                vector.push(value);
+            }
+            Ok(Value::Vector(vector))
+        }
         Node::Binary(op, left, right) => binary(
             op, &(left.0.as_ref().clone(), left.1.clone()), &(right.0.as_ref().clone(), right.1.clone()),
+            node_pos.clone(), file_path
+        ),
+        Node::Unary(op, n) => unary(
+            op, &(n.0.as_ref().clone(), n.1.clone()),
             node_pos.clone(), file_path
         ),
         _ => Err(Error::NotImplemented(format!("{node:?}"), node_pos.clone(), file_path.to_string()))

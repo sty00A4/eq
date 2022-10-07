@@ -2,7 +2,7 @@ use std::fmt::{Debug, Display, Formatter, Error as FMTError};
 use crate::position::*;
 use crate::error::*;
 use crate::lexer::*;
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum Node {
     NO,
     Binary(Token, (Box<Node>, Position), (Box<Node>, Position)), Unary(Token, (Box<Node>, Position)),
@@ -21,6 +21,32 @@ impl Node {
             Self::Vector(_) => "vector",
             Self::NO => "nothing",
         }
+    }
+}
+impl Display for Node {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), FMTError> {
+        match &self {
+            Self::Int(int) => write!(f, "({int})"),
+            Self::Float(float) => write!(f, "({float})"),
+            Self::PI => write!(f, "(pi)"),
+            Self::Infinity => write!(f, "(inf)"),
+            Self::Variable(var) => write!(f, "({var})"),
+            Self::Vector(vector) => {
+                let mut strings: Vec<String> = vec![];
+                for (node, _) in vector {
+                    strings.push(format!("{node}"));
+                }
+                write!(f, "[{}]", strings.join(" "))
+            },
+            Self::Binary(op, (left, _), (right, _)) => write!(f, "({left} {} {right})", op.name()),
+            Self::Unary(op, (node, _)) => write!(f, "({} {node})", op.name()),
+            Self::NO => write!(f, "()"),
+        }
+    }
+}
+impl Debug for Node {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), FMTError> {
+        write!(f, "{self}")
     }
 }
 
