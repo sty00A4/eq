@@ -113,11 +113,21 @@ impl Parser {
         let mut pos = self.pos();
         if self.token() == Token::Subtract {
             self.advance();
-            let (node, node_pos) = self.atom()?;
+            let (node, node_pos) = self.factor()?;
             pos.extend(node_pos.clone());
             return Ok((Node::Unary(Token::Subtract,(Box::new(node), node_pos)), pos))
         }
-        self.atom()
+        self.hash()
+    }
+    pub fn hash(&mut self) -> Result<(Node, Position), Error> {
+        let (mut left, mut left_pos) = self.atom()?;
+        while self.token() == Token::Hashtag {
+            self.advance();
+            let (right, right_pos) = self.atom()?;
+            left = Node::Binary(Token::Hashtag, (Box::new(left), left_pos.clone()), (Box::new(right), right_pos.clone()));
+            left_pos.extend(right_pos);
+        }
+        Ok((left, left_pos))
     }
     pub fn atom(&mut self) -> Result<(Node, Position), Error> {
         match self.token() {

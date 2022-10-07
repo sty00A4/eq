@@ -15,12 +15,6 @@ pub enum Token {
     Int(i64),
     #[regex(r"[0-9]+\.[0-9]+", |lex| lex.slice().parse())]
     Float(f64),
-    #[regex(r"inf|infinity")]
-    Infinity,
-    #[regex(r"pi")]
-    PI,
-    #[regex(r"[a-zA-Z][a-zA-Z_0-9]*", |lex| lex.slice().to_string())]
-    Variable(String),
 
     #[token("=")]
     Equal,
@@ -40,6 +34,8 @@ pub enum Token {
     Power,
     #[token("%")]
     Modulo,
+    #[token("#")]
+    Hashtag,
     
     #[token("(")]
     GroupIn,
@@ -53,6 +49,16 @@ pub enum Token {
     BraceIn,
     #[token("}")]
     BraceOut,
+
+    #[regex(r"is")]
+    TypeEq,
+
+    #[regex(r"inf|infinity")]
+    Infinity,
+    #[regex(r"pi")]
+    PI,
+    #[regex(r"[a-zA-Z][a-zA-Z_0-9]*", |lex| lex.slice().to_string())]
+    Variable(String),
 }
 impl Token {
     pub fn name(&self) -> &str {
@@ -75,12 +81,14 @@ impl Token {
             Self::Divide => "'/'",
             Self::Power => "'^'",
             Self::Modulo => "'%'",
+            Self::Hashtag => "'#'",
             Self::GroupIn => "'('",
             Self::GroupOut => "')'",
             Self::VectorIn => "'['",
             Self::VectorOut => "']'",
             Self::BraceIn => "'{'",
             Self::BraceOut => "'}'",
+            Self::TypeEq => "'is'",
         }
     }
 }
