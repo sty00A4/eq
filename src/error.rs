@@ -11,6 +11,7 @@ pub enum Error {
     BinaryOperation(Token, Value, Value, Position, String),
     UnaryOperation(Token, Value, Position, String),
     Index(usize, usize, Position, String),
+    IllegalValue(Value, Type, Position, String),
 }
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), FMTError> {
@@ -31,6 +32,8 @@ impl Display for Error {
             op.name(), value.type_()),
             Self::Index(vector_len, index, pos, path) =>
             write!(f, "ERROR: index {index} out of range, max {vector_len} - {path} {pos}"),
+            Self::IllegalValue(value, typ, pos, path) =>
+            write!(f, "ERROR: {} illegal for {typ} - {path} {pos}", value.type_()),
         }
     }
 }

@@ -1,3 +1,4 @@
+use std::cmp::min;
 use std::fmt::{Debug, Display, Formatter, Error as FMTError};
 use std::{fs, vec};
 use crate::error::*;
@@ -58,44 +59,27 @@ pub fn binary(op: &Token, left: &Value, right: &Value) -> Result<Value, ()> {
             (Value::Int(v1), Value::Float(v2)) => Ok(Value::Float(*v1 as f64 + v2)),
             (Value::Float(v1), Value::Int(v2)) => Ok(Value::Float(v1 + *v2 as f64)),
             (Value::Float(v1), Value::Float(v2)) => Ok(Value::Float(v1 + v2)),
-            (Value::Vector(v1), Value::Int(v2)) => {
+            (Value::Vector(v1), Value::Int(_)) => {
                 let mut vector: Vec<Value> = vec![];
                 for v in v1 {
-                    match v {
-                        Value::Int(int) => vector.push(Value::Int(int + v2)),
-                        Value::Float(float) => vector.push(Value::Float(float + *v2 as f64)),
-                        _ => return Err(())
-                    };
+                    let value = binary(op, v, right)?;
+                    vector.push(value);
                 }
                 Ok(Value::Vector(vector))
             }
-            (Value::Vector(v1), Value::Float(v2)) => {
+            (Value::Vector(v1), Value::Float(_)) => {
                 let mut vector: Vec<Value> = vec![];
                 for v in v1 {
-                    match v {
-                        Value::Int(int) => vector.push(Value::Float(*int as f64 + v2)),
-                        Value::Float(float) => vector.push(Value::Float(float + v2)),
-                        _ => return Err(())
-                    };
+                    let value = binary(op, v, right)?;
+                    vector.push(value);
                 }
                 Ok(Value::Vector(vector))
             }
             (Value::Vector(v1), Value::Vector(v2)) => {
                 let mut vector: Vec<Value> = vec![];
-                for i in 0..v1.len() {
-                    match v1[i] {
-                        Value::Int(int1) => match v2[i] {
-                            Value::Int(int2) => vector.push(Value::Int(int1 + int2)),
-                            Value::Float(float2) => vector.push(Value::Float(int1 as f64 + float2)),
-                            _ => return Err(())
-                        },
-                        Value::Float(float1) => match v2[i] {
-                            Value::Int(int2) => vector.push(Value::Float(float1 + int2 as f64)),
-                            Value::Float(float2) => vector.push(Value::Float(float1 + float2)),
-                            _ => return Err(())
-                        },
-                        _ => return Err(())
-                    };
+                for i in 0..min(v1.len(), v2.len()) {
+                    let value = binary(op, &v1[i], &v2[i])?;
+                    vector.push(value);
                 }
                 Ok(Value::Vector(vector))
             }
@@ -106,44 +90,27 @@ pub fn binary(op: &Token, left: &Value, right: &Value) -> Result<Value, ()> {
             (Value::Int(v1), Value::Float(v2)) => Ok(Value::Float(*v1 as f64 - v2)),
             (Value::Float(v1), Value::Int(v2)) => Ok(Value::Float(v1 - *v2 as f64)),
             (Value::Float(v1), Value::Float(v2)) => Ok(Value::Float(v1 - v2)),
-            (Value::Vector(v1), Value::Int(v2)) => {
+            (Value::Vector(v1), Value::Int(_)) => {
                 let mut vector: Vec<Value> = vec![];
                 for v in v1 {
-                    match v {
-                        Value::Int(int) => vector.push(Value::Int(int - v2)),
-                        Value::Float(float) => vector.push(Value::Float(float - *v2 as f64)),
-                        _ => return Err(())
-                    };
+                    let value = binary(op, v, right)?;
+                    vector.push(value);
                 }
                 Ok(Value::Vector(vector))
             }
-            (Value::Vector(v1), Value::Float(v2)) => {
+            (Value::Vector(v1), Value::Float(_)) => {
                 let mut vector: Vec<Value> = vec![];
                 for v in v1 {
-                    match v {
-                        Value::Int(int) => vector.push(Value::Float(*int as f64 - v2)),
-                        Value::Float(float) => vector.push(Value::Float(float - v2)),
-                        _ => return Err(())
-                    };
+                    let value = binary(op, v, right)?;
+                    vector.push(value);
                 }
                 Ok(Value::Vector(vector))
             }
             (Value::Vector(v1), Value::Vector(v2)) => {
                 let mut vector: Vec<Value> = vec![];
-                for i in 0..v1.len() {
-                    match v1[i] {
-                        Value::Int(int1) => match v2[i] {
-                            Value::Int(int2) => vector.push(Value::Int(int1 - int2)),
-                            Value::Float(float2) => vector.push(Value::Float(int1 as f64 - float2)),
-                            _ => return Err(())
-                        },
-                        Value::Float(float1) => match v2[i] {
-                            Value::Int(int2) => vector.push(Value::Float(float1 - int2 as f64)),
-                            Value::Float(float2) => vector.push(Value::Float(float1 -float2)),
-                            _ => return Err(())
-                        },
-                        _ => return Err(())
-                    };
+                for i in 0..min(v1.len(), v2.len()) {
+                    let value = binary(op, &v1[i], &v2[i])?;
+                    vector.push(value);
                 }
                 Ok(Value::Vector(vector))
             }
@@ -154,44 +121,27 @@ pub fn binary(op: &Token, left: &Value, right: &Value) -> Result<Value, ()> {
             (Value::Int(v1), Value::Float(v2)) => Ok(Value::Float(*v1 as f64 * v2)),
             (Value::Float(v1), Value::Int(v2)) => Ok(Value::Float(v1 * *v2 as f64)),
             (Value::Float(v1), Value::Float(v2)) => Ok(Value::Float(v1 * v2)),
-            (Value::Vector(v1), Value::Int(v2)) => {
+            (Value::Vector(v1), Value::Int(_)) => {
                 let mut vector: Vec<Value> = vec![];
                 for v in v1 {
-                    match v {
-                        Value::Int(int) => vector.push(Value::Int(int * v2)),
-                        Value::Float(float) => vector.push(Value::Float(float * *v2 as f64)),
-                        _ => return Err(())
-                    };
+                    let value = binary(op, v, right)?;
+                    vector.push(value);
                 }
                 Ok(Value::Vector(vector))
             }
-            (Value::Vector(v1), Value::Float(v2)) => {
+            (Value::Vector(v1), Value::Float(_)) => {
                 let mut vector: Vec<Value> = vec![];
                 for v in v1 {
-                    match v {
-                        Value::Int(int) => vector.push(Value::Float(*int as f64 * v2)),
-                        Value::Float(float) => vector.push(Value::Float(float * v2)),
-                        _ => return Err(())
-                    };
+                    let value = binary(op, v, right)?;
+                    vector.push(value);
                 }
                 Ok(Value::Vector(vector))
             }
             (Value::Vector(v1), Value::Vector(v2)) => {
                 let mut vector: Vec<Value> = vec![];
-                for i in 0..v1.len() {
-                    match v1[i] {
-                        Value::Int(int1) => match v2[i] {
-                            Value::Int(int2) => vector.push(Value::Int(int1 * int2)),
-                            Value::Float(float2) => vector.push(Value::Float(int1 as f64 * float2)),
-                            _ => return Err(())
-                        },
-                        Value::Float(float1) => match v2[i] {
-                            Value::Int(int2) => vector.push(Value::Float(float1 * int2 as f64)),
-                            Value::Float(float2) => vector.push(Value::Float(float1 * float2)),
-                            _ => return Err(())
-                        },
-                        _ => return Err(())
-                    };
+                for i in 0..min(v1.len(), v2.len()) {
+                    let value = binary(op, &v1[i], &v2[i])?;
+                    vector.push(value);
                 }
                 Ok(Value::Vector(vector))
             }
@@ -206,44 +156,27 @@ pub fn binary(op: &Token, left: &Value, right: &Value) -> Result<Value, ()> {
                 (Value::Int(v1), Value::Float(v2)) => Ok(Value::Float(*v1 as f64 / v2)),
                 (Value::Float(v1), Value::Int(v2)) => Ok(Value::Float(v1 / *v2 as f64)),
                 (Value::Float(v1), Value::Float(v2)) => Ok(Value::Float(v1 / v2)),
-                (Value::Vector(v1), Value::Int(v2)) => {
+                (Value::Vector(v1), Value::Int(_)) => {
                     let mut vector: Vec<Value> = vec![];
                     for v in v1 {
-                        match v {
-                            Value::Int(int) => vector.push(Value::Float(*int as f64 / *v2 as f64)),
-                            Value::Float(float) => vector.push(Value::Float(float / *v2 as f64)),
-                            _ => return Err(())
-                        };
+                        let value = binary(op, v, right)?;
+                        vector.push(value);
                     }
                     Ok(Value::Vector(vector))
                 }
-                (Value::Vector(v1), Value::Float(v2)) => {
+                (Value::Vector(v1), Value::Float(_)) => {
                     let mut vector: Vec<Value> = vec![];
                     for v in v1 {
-                        match v {
-                            Value::Int(int) => vector.push(Value::Float(*int as f64 / v2)),
-                            Value::Float(float) => vector.push(Value::Float(float / v2)),
-                            _ => return Err(())
-                        };
+                        let value = binary(op, v, right)?;
+                        vector.push(value);
                     }
                     Ok(Value::Vector(vector))
                 }
                 (Value::Vector(v1), Value::Vector(v2)) => {
                     let mut vector: Vec<Value> = vec![];
-                    for i in 0..v1.len() {
-                        match v1[i] {
-                            Value::Int(int1) => match v2[i] {
-                                Value::Int(int2) => vector.push(Value::Float(int1 as f64 / int2 as f64)),
-                                Value::Float(float2) => vector.push(Value::Float(int1 as f64 / float2)),
-                                _ => return Err(())
-                            },
-                            Value::Float(float1) => match v2[i] {
-                                Value::Int(int2) => vector.push(Value::Float(float1 / int2 as f64)),
-                                Value::Float(float2) => vector.push(Value::Float(float1 / float2)),
-                                _ => return Err(())
-                            },
-                            _ => return Err(())
-                        };
+                    for i in 0..min(v1.len(), v2.len()) {
+                        let value = binary(op, &v1[i], &v2[i])?;
+                        vector.push(value);
                     }
                     Ok(Value::Vector(vector))
                 }
@@ -254,6 +187,54 @@ pub fn binary(op: &Token, left: &Value, right: &Value) -> Result<Value, ()> {
             (Value::Vector(vector), Value::Int(index)) => {
                 if (*index as usize) >= vector.len() { return Err(()) }
                 Ok(vector[*index as usize].clone())
+            }
+            _ => Err(())
+        }
+        Token::Equal => match (left, right) {
+            (Value::Int(v1), Value::Int(v2)) => Ok(Value::Int((v1 == v2) as i64)),
+            (Value::Int(v1), Value::Float(v2)) => Ok(Value::Int((*v1 as f64 == *v2) as i64)),
+            (Value::Float(v1), Value::Int(v2)) => Ok(Value::Int((*v1 == *v2 as f64) as i64)),
+            (Value::Float(v1), Value::Float(v2)) => Ok(Value::Int((v1 == v2) as i64)),
+            (Value::Vector(v1), Value::Vector(v2)) => {
+                let mut equal = true;
+                for i in 0..min(v1.len(), v2.len()) {
+                    let value = binary(op, &v1[i], &v2[i])?;
+                    if let Value::Int(int) = value { equal = int != 0; }
+                    if !equal { break }
+                }
+                Ok(Value::Int(equal as i64))
+            }
+            _ => Err(())
+        }
+        Token::Less => match (left, right) {
+            (Value::Int(v1), Value::Int(v2)) => Ok(Value::Int((v1 < v2) as i64)),
+            (Value::Int(v1), Value::Float(v2)) => Ok(Value::Int(((*v1 as f64) < *v2) as i64)),
+            (Value::Float(v1), Value::Int(v2)) => Ok(Value::Int((*v1 < *v2 as f64) as i64)),
+            (Value::Float(v1), Value::Float(v2)) => Ok(Value::Int((v1 < v2) as i64)),
+            (Value::Vector(v1), Value::Vector(v2)) => {
+                let mut equal = true;
+                for i in 0..min(v1.len(), v2.len()) {
+                    let value = binary(op, &v1[i], &v2[i])?;
+                    if let Value::Int(int) = value { equal = int != 0; }
+                    if !equal { break }
+                }
+                Ok(Value::Int(equal as i64))
+            }
+            _ => Err(())
+        }
+        Token::Greater => match (left, right) {
+            (Value::Int(v1), Value::Int(v2)) => Ok(Value::Int((v1 > v2) as i64)),
+            (Value::Int(v1), Value::Float(v2)) => Ok(Value::Int((*v1 as f64 > *v2) as i64)),
+            (Value::Float(v1), Value::Int(v2)) => Ok(Value::Int((*v1 > *v2 as f64) as i64)),
+            (Value::Float(v1), Value::Float(v2)) => Ok(Value::Int((v1 > v2) as i64)),
+            (Value::Vector(v1), Value::Vector(v2)) => {
+                let mut equal = true;
+                for i in 0..min(v1.len(), v2.len()) {
+                    let value = binary(op, &v1[i], &v2[i])?;
+                    if let Value::Int(int) = value { equal = int != 0; }
+                    if !equal { break }
+                }
+                Ok(Value::Int(equal as i64))
             }
             _ => Err(())
         }
@@ -282,6 +263,11 @@ pub fn interpret(node_and_pos: &(Node, Position), file_path: &str) -> Result<Val
             let mut vector: Vec<Value> = vec![];
             for n in nodes {
                 let value = interpret(&n, file_path)?;
+                match &value {
+                    Value::Int(_) => {},
+                    Value::Float(_) => {},
+                    _ => return Err(Error::IllegalValue(value, Type::Vector, n.1.clone(), file_path.to_string()))
+                }
                 vector.push(value);
             }
             Ok(Value::Vector(vector))

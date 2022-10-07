@@ -18,6 +18,12 @@ pub enum Token {
 
     #[token("=")]
     Equal,
+    #[token("!=")]
+    NotEqual,
+    #[token(">=")]
+    GreaterEqual,
+    #[token("<=")]
+    LessEqual,
     #[token(">")]
     Greater,
     #[token("<")]
@@ -73,6 +79,9 @@ impl Token {
             Self::PI => "pi",
             Self::Variable(_) => "variable",
             Self::Equal => "'='",
+            Self::NotEqual => "'!='",
+            Self::GreaterEqual => "'>='",
+            Self::LessEqual => "'<='",
             Self::Greater => "'>'",
             Self::Less => "'<'",
             Self::Add => "'+'",

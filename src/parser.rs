@@ -72,7 +72,19 @@ impl Parser {
         Ok(node)
     }
     pub fn expr(&mut self) -> Result<(Node, Position), Error> {
-        self.arith()
+        self.comp()
+    }
+    pub fn comp(&mut self) -> Result<(Node, Position), Error> {
+        let (mut left, mut left_pos) = self.arith()?;
+        while [Token::Equal, Token::NotEqual, Token::Greater, Token::Less, Token::GreaterEqual, Token::LessEqual]
+        .contains(&self.token()) {
+            let op = self.token();
+            self.advance();
+            let (right, right_pos) = self.arith()?;
+            left = Node::Binary(op, (Box::new(left), left_pos.clone()), (Box::new(right), right_pos.clone()));
+            left_pos.extend(right_pos);
+        }
+        Ok((left, left_pos))
     }
     pub fn arith(&mut self) -> Result<(Node, Position), Error> {
         let (mut left, mut left_pos) = self.term()?;
