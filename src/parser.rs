@@ -5,7 +5,8 @@ use crate::lexer::*;
 #[derive(Clone, PartialEq)]
 pub enum Node {
     Binary(Token, (Box<Node>, Position), (Box<Node>, Position)), Unary(Token, (Box<Node>, Position)),
-    Int(i64), Float(f64), Infinity, PI, Variable(String), Vector(Vec<(Node, Position)>)
+    Int(i64), Float(f64), Infinity, PI, Variable(String), Vector(Vec<(Node, Position)>),
+    Set((Box<Node>, Position), (Box<Node>, Position))
 }
 // impl Node {
 //     pub fn name(&self) -> &str {
@@ -29,6 +30,7 @@ impl Display for Node {
             Self::PI => write!(f, "(pi)"),
             Self::Infinity => write!(f, "(inf)"),
             Self::Variable(var) => write!(f, "({var})"),
+            Self::Set((var, _), (expr, _)) => write!(f, "({var} : {expr})"),
             Self::Vector(vector) => {
                 let mut strings: Vec<String> = vec![];
                 for (node, _) in vector {
@@ -72,7 +74,14 @@ impl Parser {
         Ok(node)
     }
     pub fn expr(&mut self) -> Result<(Node, Position), Error> {
-        self.comp()
+        let (mut left, mut left_pos) = self.comp()?;
+        while self.token() == Token::Rep {
+            self.advance();
+            let (right, right_pos) = self.expr()?;
+            left = Node::Set((Box::new(left), left_pos.clone()), (Box::new(right), right_pos.clone()));
+            left_pos.extend(right_pos);
+        }
+        Ok((left, left_pos))
     }
     pub fn comp(&mut self) -> Result<(Node, Position), Error> {
         let (mut left, mut left_pos) = self.arith()?;

@@ -42,6 +42,8 @@ pub enum Token {
     Modulo,
     #[token("#")]
     Hashtag,
+    #[token(":")]
+    Rep,
     
     #[token("(")]
     GroupIn,
@@ -91,6 +93,7 @@ impl Token {
             Self::Power => "'^'",
             Self::Modulo => "'%'",
             Self::Hashtag => "'#'",
+            Self::Rep => "':'",
             Self::GroupIn => "'('",
             Self::GroupOut => "')'",
             Self::VectorIn => "'['",

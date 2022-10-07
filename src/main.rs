@@ -11,7 +11,7 @@ mod position;
 mod lexer;
 mod parser;
 mod interpreter;
-use crate::interpreter::{run, runfile};
+use crate::interpreter::*;
 
 // -- INTERPRET ------------------------------------------------------------------------
 
@@ -21,12 +21,13 @@ fn main() {
         runfile(args[1].as_str());
         return
     }
+    let mut context = Context::new();
     loop {
         let mut input = String::new();
         print!("> ");
         let _ = io::stdout().flush();
         io::stdin().read_line(&mut input).unwrap();
-        let value = run(input.as_str(), "<shell>");
+        let value = run(input.as_str(), "<shell>", &mut context);
         if let Some(v) = value {
             println!("{v}")
         }
