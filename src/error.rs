@@ -1,13 +1,11 @@
 use std::fmt::{Debug, Display, Formatter, Error as FMTError};
 use crate::position::*;
 use crate::lexer::*;
-use crate::parser::*;
 use crate::interpreter::*;
 #[derive(Clone, PartialEq)]
 pub enum Error {
     Syntax(String, Position, String),
     ExpectToken(Token, Token, Position, String),
-    ExpectNode(Node, Node, Position, String),
     UnexpectedToken(Token, Position, String),
     NotImplemented(String, Position, String),
     BinaryOperation(Token, Value, Value, Position, String),
@@ -21,8 +19,6 @@ impl Display for Error {
             write!(f, "ERROR: {detail} - {path} {pos}"),
             Self::ExpectToken(token1, token2, pos, path) =>
             write!(f, "ERROR: expected {} got {} - {path} {pos}", token1.name(), token2.name()),
-            Self::ExpectNode(node1, node2, pos, path) =>
-            write!(f, "ERROR: expected {} got {} - {path} {pos}", node1.name(), node2.name()),
             Self::UnexpectedToken(token, pos, path) =>
             write!(f, "ERROR: unexpected {} - {path} {pos}", token.name()),
             Self::NotImplemented(msg, pos, path) =>

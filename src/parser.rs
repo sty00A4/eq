@@ -4,25 +4,23 @@ use crate::error::*;
 use crate::lexer::*;
 #[derive(Clone, PartialEq)]
 pub enum Node {
-    NO,
     Binary(Token, (Box<Node>, Position), (Box<Node>, Position)), Unary(Token, (Box<Node>, Position)),
     Int(i64), Float(f64), Infinity, PI, Variable(String), Vector(Vec<(Node, Position)>)
 }
-impl Node {
-    pub fn name(&self) -> &str {
-        match &self {
-            Self::Binary(token, _, _) => "binary operation",
-            Self::Unary(token, _) => "unary operation",
-            Self::Int(_) => "int",
-            Self::Float(_) => "float",
-            Self::Infinity => "infinity",
-            Self::PI => "pi",
-            Self::Variable(_) => "variable",
-            Self::Vector(_) => "vector",
-            Self::NO => "nothing",
-        }
-    }
-}
+// impl Node {
+//     pub fn name(&self) -> &str {
+//         match &self {
+//             Self::Binary(token, _, _) => "binary operation",
+//             Self::Unary(token, _) => "unary operation",
+//             Self::Int(_) => "int",
+//             Self::Float(_) => "float",
+//             Self::Infinity => "infinity",
+//             Self::PI => "pi",
+//             Self::Variable(_) => "variable",
+//             Self::Vector(_) => "vector",
+//         }
+//     }
+// }
 impl Display for Node {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), FMTError> {
         match &self {
@@ -40,7 +38,6 @@ impl Display for Node {
             },
             Self::Binary(op, (left, _), (right, _)) => write!(f, "({left} {} {right})", op.name()),
             Self::Unary(op, (node, _)) => write!(f, "({} {node})", op.name()),
-            Self::NO => write!(f, "()"),
         }
     }
 }
@@ -154,7 +151,7 @@ impl Parser {
             Token::GroupIn => {
                 self.advance();
                 let node = self.expr()?;
-                self.expect_token(Token::GroupOut);
+                self.expect_token(Token::GroupOut)?;
                 self.advance();
                 Ok(node)
             }

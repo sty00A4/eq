@@ -7,7 +7,7 @@ use crate::parser::*;
 use std::f64::{consts::PI, INFINITY};
 #[derive(Clone, PartialEq)]
 pub enum Type {
-    Int, Float, Vector, Type
+    Int, Float, Vector
 }
 impl Display for Type {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), FMTError> {
@@ -15,7 +15,6 @@ impl Display for Type {
             Self::Int => write!(f, "int"),
             Self::Float => write!(f, "float"),
             Self::Vector => write!(f, "vector"),
-            Self::Type => write!(f, "type"),
         }
     }
 }
@@ -26,7 +25,7 @@ impl Debug for Type {
 }
 #[derive(Clone, PartialEq)]
 pub enum Value {
-    Int(i64), Float(f64), Vector(Vec<Value>), Type(Type)
+    Int(i64), Float(f64), Vector(Vec<Value>)
 }
 impl Value {
     pub fn type_(&self) -> Type {
@@ -34,7 +33,6 @@ impl Value {
             Self::Int(_) => Type::Int,
             Self::Float(_) => Type::Float,
             Self::Vector(_) => Type::Vector,
-            Self::Type(_) => Type::Type,
         }
     }
 }
@@ -44,7 +42,6 @@ impl Display for Value {
             Self::Int(int) => write!(f, "{int}"),
             Self::Float(float) => write!(f, "{float}"),
             Self::Vector(vector) => write!(f, "{vector:?}"),
-            Self::Type(typ) => write!(f, "{typ}"),
         }
     }
 }

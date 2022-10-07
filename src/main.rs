@@ -1,6 +1,6 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
-#![allow(unused_must_use)]
+// #![allow(dead_code)]
+// #![allow(unused_variables)]
+// #![allow(unused_must_use)]
 
 extern crate logos;
 use std::io::Write;
@@ -24,7 +24,7 @@ fn main() {
     loop {
         let mut input = String::new();
         print!("> ");
-        io::stdout().flush();
+        let _ = io::stdout().flush();
         io::stdin().read_line(&mut input).unwrap();
         let value = run(input.as_str(), "<shell>");
         if let Some(v) = value {
