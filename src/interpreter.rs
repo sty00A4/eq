@@ -196,6 +196,7 @@ pub fn binary(op: &Token, left: &Value, right: &Value) -> Result<Value, ()> {
             (Value::Float(v1), Value::Int(v2)) => Ok(Value::Int((*v1 == *v2 as f64) as i64)),
             (Value::Float(v1), Value::Float(v2)) => Ok(Value::Int((v1 == v2) as i64)),
             (Value::Vector(v1), Value::Vector(v2)) => {
+                if v1.len() != v2.len() { return Ok(Value::Int(0)) }
                 let mut equal = true;
                 for i in 0..min(v1.len(), v2.len()) {
                     let value = binary(op, &v1[i], &v2[i])?;
@@ -203,6 +204,23 @@ pub fn binary(op: &Token, left: &Value, right: &Value) -> Result<Value, ()> {
                     if !equal { break }
                 }
                 Ok(Value::Int(equal as i64))
+            }
+            _ => Err(())
+        }
+        Token::NotEqual => match (left, right) {
+            (Value::Int(v1), Value::Int(v2)) => Ok(Value::Int((v1 != v2) as i64)),
+            (Value::Int(v1), Value::Float(v2)) => Ok(Value::Int((*v1 as f64 != *v2) as i64)),
+            (Value::Float(v1), Value::Int(v2)) => Ok(Value::Int((*v1 != *v2 as f64) as i64)),
+            (Value::Float(v1), Value::Float(v2)) => Ok(Value::Int((v1 != v2) as i64)),
+            (Value::Vector(v1), Value::Vector(v2)) => {
+                if v1.len() != v2.len() { return Ok(Value::Int(1)) }
+                let mut equal = true;
+                for i in 0..min(v1.len(), v2.len()) {
+                    let value = binary(&Token::Equal, &v1[i], &v2[i])?;
+                    if let Value::Int(int) = value { equal = int != 0; }
+                    if !equal { break }
+                }
+                Ok(Value::Int(!equal as i64))
             }
             _ => Err(())
         }
@@ -227,6 +245,38 @@ pub fn binary(op: &Token, left: &Value, right: &Value) -> Result<Value, ()> {
             (Value::Int(v1), Value::Float(v2)) => Ok(Value::Int((*v1 as f64 > *v2) as i64)),
             (Value::Float(v1), Value::Int(v2)) => Ok(Value::Int((*v1 > *v2 as f64) as i64)),
             (Value::Float(v1), Value::Float(v2)) => Ok(Value::Int((v1 > v2) as i64)),
+            (Value::Vector(v1), Value::Vector(v2)) => {
+                let mut equal = true;
+                for i in 0..min(v1.len(), v2.len()) {
+                    let value = binary(op, &v1[i], &v2[i])?;
+                    if let Value::Int(int) = value { equal = int != 0; }
+                    if !equal { break }
+                }
+                Ok(Value::Int(equal as i64))
+            }
+            _ => Err(())
+        }
+        Token::LessEqual => match (left, right) {
+            (Value::Int(v1), Value::Int(v2)) => Ok(Value::Int((v1 <= v2) as i64)),
+            (Value::Int(v1), Value::Float(v2)) => Ok(Value::Int(((*v1 as f64) <= *v2) as i64)),
+            (Value::Float(v1), Value::Int(v2)) => Ok(Value::Int((*v1 <= *v2 as f64) as i64)),
+            (Value::Float(v1), Value::Float(v2)) => Ok(Value::Int((v1 <= v2) as i64)),
+            (Value::Vector(v1), Value::Vector(v2)) => {
+                let mut equal = true;
+                for i in 0..min(v1.len(), v2.len()) {
+                    let value = binary(op, &v1[i], &v2[i])?;
+                    if let Value::Int(int) = value { equal = int != 0; }
+                    if !equal { break }
+                }
+                Ok(Value::Int(equal as i64))
+            }
+            _ => Err(())
+        }
+        Token::GreaterEqual => match (left, right) {
+            (Value::Int(v1), Value::Int(v2)) => Ok(Value::Int((v1 >= v2) as i64)),
+            (Value::Int(v1), Value::Float(v2)) => Ok(Value::Int((*v1 as f64 >= *v2) as i64)),
+            (Value::Float(v1), Value::Int(v2)) => Ok(Value::Int((*v1 >= *v2 as f64) as i64)),
+            (Value::Float(v1), Value::Float(v2)) => Ok(Value::Int((v1 >= v2) as i64)),
             (Value::Vector(v1), Value::Vector(v2)) => {
                 let mut equal = true;
                 for i in 0..min(v1.len(), v2.len()) {
@@ -300,7 +350,8 @@ pub fn interpret(node_and_pos: &(Node, Position), file_path: &str) -> Result<Val
     }
 }
 
-// -- RUNNING --------------------------------------------------------------------------
+
+
 pub fn run(text: &str, file_path: &str) -> Option<Value> {
     let res = lex(text, file_path);
     if res.is_err() {
