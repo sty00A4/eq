@@ -6,7 +6,8 @@ use crate::lexer::*;
 pub enum Node {
     Binary(Token, (Box<Node>, Position), (Box<Node>, Position)), Unary(Token, (Box<Node>, Position)),
     Int(i64), Float(f64), Infinity, PI, Variable(String), Vector(Vec<(Node, Position)>),
-    Set((Box<Node>, Position), (Box<Node>, Position))
+    Set((Box<Node>, Position), (Box<Node>, Position)),
+    Call((Box<Node>, Position), (Box<Node>, Position)),
 }
 // impl Node {
 //     pub fn name(&self) -> &str {
@@ -31,6 +32,7 @@ impl Display for Node {
             Self::Infinity => write!(f, "(inf)"),
             Self::Variable(var) => write!(f, "({var})"),
             Self::Set((var, _), (expr, _)) => write!(f, "({var} : {expr})"),
+            Self::Call((var, _), (param, _)) => write!(f, "({var} ( {param} ))"),
             Self::Vector(vector) => {
                 let mut strings: Vec<String> = vec![];
                 for (node, _) in vector {
@@ -131,11 +133,25 @@ impl Parser {
         let mut pos = self.pos();
         if self.token() == Token::Subtract {
             self.advance();
-            let (node, node_pos) = self.factor()?;
+            let (node, node_pos) = self.call()?;
             pos.extend(node_pos.clone());
             return Ok((Node::Unary(Token::Subtract,(Box::new(node), node_pos)), pos))
         }
-        self.hash()
+        self.call()
+    }
+    pub fn call(&mut self) -> Result<(Node, Position), Error> {
+        let mut pos = self.pos();
+        let (var, var_pos) = self.hash()?;
+        if self.token() == Token::GroupIn {
+            self.advance();
+            let (arg, arg_pos) = self.expr()?;
+            self.expect_token(Token::GroupOut)?;
+            let pos_ = self.pos();
+            pos.extend(pos_);
+            self.advance();
+            return Ok((Node::Call((Box::new(var), var_pos), (Box::new(arg), arg_pos)), pos))
+        }
+        Ok((var, var_pos))
     }
     pub fn hash(&mut self) -> Result<(Node, Position), Error> {
         let (mut left, mut left_pos) = self.atom()?;

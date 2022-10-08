@@ -28,8 +28,6 @@ fn main() {
         let _ = io::stdout().flush();
         io::stdin().read_line(&mut input).unwrap();
         let value = run(input.as_str(), "<shell>", &mut context);
-        if let Some(v) = value {
-            println!("{v}")
-        }
+        if let Some(v) = value { println!("{v}") }
     }
 }
