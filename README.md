@@ -1,2 +1,2 @@
 # EQ
-simple calculator language in progress for expansion
+A simple calculation language
